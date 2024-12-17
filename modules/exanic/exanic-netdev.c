@@ -1332,6 +1332,20 @@ static int exanic_netdev_restart_autoneg(struct net_device* ndev)
     return exanic_phyops_restart_autoneg(exanic, port_no);
 }
 
+
+size_t strlcpy(char *dst, const char *src, size_t n) {
+    char *p = dst;
+
+    if (n != 0) {
+        for (; --n != 0; p++, src++) {
+            if ((*p = *src) == '\0')
+                return p - dst;
+        }
+        *p = '\0';
+    }
+    return (p - dst) + strlen(src);
+}
+
 static void exanic_netdev_get_drvinfo(struct net_device *ndev,
                                       struct ethtool_drvinfo *info)
 {
@@ -1888,7 +1902,7 @@ static int exanic_netdev_poll(struct napi_struct *napi, int budget)
         if (exanic_rx_ready(rx))
         {
             /* Poll again as soon as possible */
-            napi_reschedule(napi);
+            napi_schedule(napi);
         }
         else if (priv->rx_coalesce_timeout_ns > 0)
         {
